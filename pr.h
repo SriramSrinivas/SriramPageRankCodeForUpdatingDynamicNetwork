@@ -68,7 +68,7 @@ void computeValueOfNode(vector<PageRank_MetaInformation> *pageRankCompleteInform
     {
       if(pageRankCompleteInformation->at(*i).inConnnection.at(j).first!=-1) {
           value += (pageRankCompleteInformation->at(pageRankCompleteInformation->at(*i).inConnnection.at(j).first).pageRank) /
-                   (pageRankCompleteInformation->at(pageRankCompleteInformation->at(*i).inConnnection.at(j).first).outsideConnnection.size());
+                   (pageRankCompleteInformation->at(pageRankCompleteInformation->at(*i).inConnnection.at(j).first).afterProcessingCEOutsideConnectionSize);
       }
     }
     pageRankCompleteInformation->at(*i).intermediateValue=value;
