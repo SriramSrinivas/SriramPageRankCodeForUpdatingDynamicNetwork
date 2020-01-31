@@ -149,6 +149,7 @@ void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRa
     char line[128];
     int_int edge;
     int type;
+
     
     graph_file=fopen(myfile, "r");
     while(fgets(line,128,graph_file) != NULL)
@@ -166,21 +167,42 @@ void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRa
             //Delete edge in X
             //Mark with -b to show in which batch it was deleted.
            // pageRank_Info->at(n1).updateFlag=true;
-            for (auto it =pageRankCompleteInformation->at(n1).outsideConnnection.begin() ; it != pageRankCompleteInformation->at(n1).outsideConnnection.end(); ) {
-                if (*it == n2) {
-                    it = pageRankCompleteInformation->at(n1).outsideConnnection.erase(it);
+//            for (auto it =pageRankCompleteInformation->at(n1).outsideConnnection.begin() ; it != pageRankCompleteInformation->at(n1).outsideConnnection.end(); ) {
+//                if (*it == n2) {
+//                    it = pageRankCompleteInformation->at(n1).outsideConnnection.erase(it);
+//                    break;
+//                } else {
+//                    ++it;
+//                }
+//            }
+
+            for (int i=0;i<pageRankCompleteInformation->at(n1).outsideConnnection.size();i++)
+            {
+                if(pageRankCompleteInformation->at(n1).outsideConnnection.at(i).first==n2)
+                {
+                    pageRankCompleteInformation->at(n1).outsideConnnection.at(i).first=-1;
+                    pageRankCompleteInformation->at(n1).afterProcessingCEOutsideConnectionSize--;
                     break;
-                } else {
-                    ++it;
                 }
             }
 
-            for (auto it =pageRankCompleteInformation->at(n2).inConnnection.begin() ; it != pageRankCompleteInformation->at(n2).inConnnection.end(); ) {
-                if (*it == n1) {
-                    it = pageRankCompleteInformation->at(n2).inConnnection.erase(it);
+//            for (auto it =pageRankCompleteInformation->at(n2).inConnnection.begin() ; it != pageRankCompleteInformation->at(n2).inConnnection.end(); ) {
+//                if (*it == n1) {
+//                    it = pageRankCompleteInformation->at(n2).inConnnection.erase(it);
+//                    break;
+//                } else {
+//                    ++it;
+//                }
+//            }
+
+
+            for (int i=0;i<pageRankCompleteInformation->at(n2).inConnnection.size();i++)
+            {
+                if(pageRankCompleteInformation->at(n2).inConnnection.at(i).first==n1)
+                {
+                    pageRankCompleteInformation->at(n2).inConnnection.at(i).first=-1;
+                    pageRankCompleteInformation->at(n2).afterProcessigCEInConnectionSize--;
                     break;
-                } else {
-                    ++it;
                 }
             }
 
@@ -223,8 +245,16 @@ void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRa
 //            cout<< pageRank_Info->at(n2).updateFlag<<"\n";
             pageRankCompleteInformation->at(n1).updateFlag=true;
             pageRankCompleteInformation->at(n2).updateFlag=true;
-            pageRankCompleteInformation->at(n1).outsideConnnection.push_back(n2);
-            pageRankCompleteInformation->at(n2).inConnnection.push_back(n1);
+            int_double dummy_val;
+            dummy_val.first=n2;
+            dummy_val.second=pageRankCompleteInformation->at(n2).pageRank;
+            pageRankCompleteInformation->at(n1).outsideConnnection.push_back(dummy_val);
+            pageRankCompleteInformation->at(n1).afterProcessingCEOutsideConnectionSize++;
+
+            dummy_val.first=n1;
+            dummy_val.second=pageRankCompleteInformation->at(n1).pageRank;
+            pageRankCompleteInformation->at(n2).inConnnection.push_back(dummy_val);
+            pageRankCompleteInformation->at(n2).afterProcessigCEInConnectionSize++;
             X->at(n1).In_Neigh.push_back(dummy);
             dummy.first=n1;
             X->at(n2).Out_Neigh.push_back(dummy);

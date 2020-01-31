@@ -20,6 +20,7 @@ using namespace std;
 
 
 typedef pair<int, int> int_int;  /** /typedef pair of integers */
+typedef pair<int,double>int_double;
 
 //Properties of a vertex requored for SCC
 struct SCC_Vertex
@@ -163,11 +164,14 @@ struct PageRank_MetaInformation{
     bool vertexLock;
     bool updateFlag;
     double previousIterationPageRankValue;
-    vector<int>inConnnection;
-    vector<int>outsideConnnection;
+    vector<int_double>inConnnection;
+    vector<int_double >outsideConnnection;
     vector<double> value;
     int degree;
-
+    int inConnectionSize;
+    int outsideConnectionSize;
+    int afterProcessigCEInConnectionSize;
+    int afterProcessingCEOutsideConnectionSize;
     PageRank_MetaInformation()
     {
         inConnnection.clear();
@@ -175,6 +179,8 @@ struct PageRank_MetaInformation{
         vertexLock=false;
         updateFlag=false;
         previousIterationPageRankValue=false;
+        inConnectionSize=0;
+        outsideConnectionSize=0;
     }
 
 

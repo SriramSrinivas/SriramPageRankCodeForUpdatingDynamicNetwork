@@ -27,19 +27,29 @@ void updatePageRankMetaInformation(SCC_Network *X,vector<PR_Comp> * pageRank_Inf
         pageRankCompleteInformation->at(i).pageRank=pageRank_Info->at(i).pageRank;
         pageRankCompleteInformation->at(i).id=i;
         for (int j = 0; j < X->at(i).In_Neigh.size(); j++) {
-            PR_Comp dummy;
+            int_double dummy;
             //cout << X->at(i).In_Neigh[j].first << "\t";
-            dummy.id = X->at(i).In_Neigh[j].first;
-            dummy.pageRank = pageRank_Info->at(i).pageRank;
-            pageRankCompleteInformation->at(i).outsideConnnection.push_back(X->at(i).In_Neigh[j].first);
+            dummy.first = X->at(i).In_Neigh[j].first;
+            dummy.second = pageRank_Info->at(j).pageRank;
+            pageRankCompleteInformation->at(i).outsideConnnection.push_back(dummy);
+
         }
+             pageRankCompleteInformation->at(i).outsideConnectionSize=X->at(i).In_Neigh.size();
 
 
         for(int j=0;j<X->at(i).Out_Neigh.size();j++) {
 
-            pageRankCompleteInformation->at(i).inConnnection.push_back(X->at(i).Out_Neigh[j].first);
-        }
+               int_double dummy;
+               dummy.first=X->at(i).Out_Neigh[j].first;
+               dummy.second=pageRank_Info->at(j).pageRank;
+            pageRankCompleteInformation->at(i).inConnnection.push_back(dummy);
 
+
+        }
+             pageRankCompleteInformation->at(i).inConnectionSize=X->at(i).Out_Neigh.size();
+
+        pageRankCompleteInformation->at(i).afterProcessigCEInConnectionSize=pageRankCompleteInformation->at(i).inConnectionSize;
+        pageRankCompleteInformation->at(i).afterProcessingCEOutsideConnectionSize=pageRankCompleteInformation->at(i).outsideConnectionSize;
 
         //cout << "\n";
     }
@@ -56,8 +66,10 @@ void computeValueOfNode(vector<PageRank_MetaInformation> *pageRankCompleteInform
     //
     for(int j=0;j< pageRankCompleteInformation->at(*i).inConnnection.size();j++)
     {
-        value+= (pageRankCompleteInformation->at(pageRankCompleteInformation->at(*i).inConnnection.at(j)).pageRank)/(pageRankCompleteInformation->at(pageRankCompleteInformation->at(*i).inConnnection.at(j)).outsideConnnection.size());
-
+      if(pageRankCompleteInformation->at(*i).inConnnection.at(j).first!=-1) {
+          value += (pageRankCompleteInformation->at(pageRankCompleteInformation->at(*i).inConnnection.at(j).first).pageRank) /
+                   (pageRankCompleteInformation->at(pageRankCompleteInformation->at(*i).inConnnection.at(j).first).outsideConnnection.size());
+      }
     }
     pageRankCompleteInformation->at(*i).intermediateValue=value;
     //cout<<value<<"\n";
@@ -76,6 +88,7 @@ void compute_d_ValueforGivenPageRank(vector<PageRank_MetaInformation> *pageRankC
      double d_value=0.00;
 
     for(int i=0;i<pageRankCompleteInformation->size();i++) {
+
         computeValueOfNode(pageRankCompleteInformation, &i);
        double tmpvalue1=pageRankCompleteInformation->at(i).pageRank-pageRankCompleteInformation->at(i).intermediateValue;
        double tmpvalue2=(1.00/(pageRankCompleteInformation->size()))-pageRankCompleteInformation->at(i).intermediateValue;
@@ -87,7 +100,10 @@ void compute_d_ValueforGivenPageRank(vector<PageRank_MetaInformation> *pageRankC
     }
 
 
+void updateValueOfNode(vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *nodetoBeupdated)
+{
 
+}
 
 void  printPageRankCompleteInformationInitial(SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRank_MetaInformation> *pageRankCompleteInformation)
 {
@@ -98,18 +114,19 @@ void  printPageRankCompleteInformationInitial(SCC_Network *X,vector<PR_Comp> * p
         cout<<"Internal: \t";
         for(int j=0;j< pageRankCompleteInformation->at(i).inConnnection.size();j++)
         {
-            cout <<pageRankCompleteInformation->at(i).inConnnection.at(j)<<"\t";
+            cout <<pageRankCompleteInformation->at(i).inConnnection.at(j).first<<"\t";
         }
         cout<<"External:  \t";
 
         for(int j=0;j< pageRankCompleteInformation->at(i).outsideConnnection.size();j++)
         {
-            cout <<pageRankCompleteInformation->at(i).outsideConnnection.at(j)<<"\t";
+            cout <<pageRankCompleteInformation->at(i).outsideConnnection.at(j).first<<"\t";
         }
 
-        cout <<"d Value: \t";
+        cout <<"size: \t";
 
-        cout <<pageRankCompleteInformation->at(i).dValue;
+        cout <<pageRankCompleteInformation->at(i).outsideConnectionSize<<"\t";
+        cout <<pageRankCompleteInformation->at(i).inConnectionSize<<"\t";
         cout <<"\n";
     }
 
@@ -119,25 +136,36 @@ void  printPageRankCompleteInformationInitial(SCC_Network *X,vector<PR_Comp> * p
 
 void updatePageRankUpdateFlagForNeighbors (vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *nodetoBeupdated)
 {
-    for(int j=0;j< pageRankCompleteInformation->at(*nodetoBeupdated).outsideConnnection.size();j++)
-    {
-        int nodetoMark=pageRankCompleteInformation->at(*nodetoBeupdated).outsideConnnection.at(j);
-       if(!pageRankCompleteInformation->at(nodetoMark).updateFlag) {
-           pageRankCompleteInformation->at(nodetoMark).updateFlag = true;
-       }
+    for(int j=0;j< pageRankCompleteInformation->at(*nodetoBeupdated).outsideConnnection.size();j++) {
+        int nodetoMark = pageRankCompleteInformation->at(*nodetoBeupdated).outsideConnnection.at(j).first;
+
+        if (nodetoMark != -1) {
+            if (!pageRankCompleteInformation->at(nodetoMark).updateFlag) {
+                pageRankCompleteInformation->at(nodetoMark).updateFlag = true;
+            }
+        }
     }
 
 }
 
 void  computePageRankofNodetobeUpdated(vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *nodetoBeupdated)
 {
-    computeValueOfNode(pageRankCompleteInformation,nodetoBeupdated);
+    /*
+     *
+     * Don't compute the values, just update the existing values
+     */
+
+    if(pageRankCompleteInformation->at(*nodetoBeupdated).inConnectionSize!=pageRankCompleteInformation->at(*nodetoBeupdated).afterProcessigCEInConnectionSize) {
+        computeValueOfNode(pageRankCompleteInformation, nodetoBeupdated);
+        // updateValueOfNode(pageRankCompleteInformation,nodetoBeupdated)
+    }
+   // updateValueOfNode(pageRankCompleteInformation,nodetoBeupdated)
     pageRankCompleteInformation->at(*nodetoBeupdated).pageRank=((pageRankCompleteInformation->at(*nodetoBeupdated).dValue)/(pageRankCompleteInformation->size())
 
             +(1-pageRankCompleteInformation->at(*nodetoBeupdated).dValue)*(pageRankCompleteInformation->at(*nodetoBeupdated).intermediateValue));
-    if(pageRankCompleteInformation->at(*nodetoBeupdated).previousIterationPageRankValue==pageRankCompleteInformation->at(*nodetoBeupdated).pageRank)
+    if(pageRankCompleteInformation->at(*nodetoBeupdated).previousIterationPageRankValue==pageRankCompleteInformation->at(*nodetoBeupdated).pageRank*0.00001)
     {
-        pageRankCompleteInformation->at(*nodetoBeupdated).updateFlag== false;
+        pageRankCompleteInformation->at(*nodetoBeupdated).updateFlag=false;
     }else
         {
             pageRankCompleteInformation->at(*nodetoBeupdated).previousIterationPageRankValue= pageRankCompleteInformation->at(*nodetoBeupdated).pageRank;
@@ -166,7 +194,7 @@ void updatePageRank(SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRa
   bool change=true;
     while(counter<*maxIterations && change==true) {
 change=false;
- #pragma omp parallel for num_threads(*p)
+ #pragma omp parallel for schedule(dynamic) num_threads(*p)
         for (int i = 0; i < pageRankCompleteInformation->size(); i++) {
 
             /*
@@ -178,7 +206,7 @@ change=false;
             if (pageRankCompleteInformation->at(i).updateFlag== true)
             { change=true;
 
-                pageRankCompleteInformation->at(i).vertexLock=true;
+                //pageRankCompleteInformation->at(i).vertexLock=true;
                 int nodetoBeupdated=pageRankCompleteInformation->at(i).id;
                 computePageRankofNodetobeUpdated(pageRankCompleteInformation,&nodetoBeupdated);
                 updatePageRankUpdateFlagForNeighbors(pageRankCompleteInformation,&nodetoBeupdated);

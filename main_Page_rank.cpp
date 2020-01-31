@@ -72,7 +72,7 @@ SCC_Network initialNetwork;
     int b=1;
     readin_changes(argv[3], b,&initialNetwork,&pageRank_Info,&pageRankCompleteInformation);
     batch_update(&initialNetwork,p);
-    //printPageRankCompleteInformationInitial(&initialNetwork,&pageRank_Info,&pageRankCompleteInformation);
+   // printPageRankCompleteInformationInitial(&initialNetwork,&pageRank_Info,&pageRankCompleteInformation);
 
     int maxIterations=atoi(argv[6]);
     updateStartTime=clock();
