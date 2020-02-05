@@ -93,7 +93,7 @@ void readin_PageRank(char *file, SCC_Network *X, vector<PR_Comp> *C_Info)
 
         //Add vertex to the component list
             C_Info->at(ID).id=ID;
-           cout << std::setprecision(15)<<pageRank<<"\n";
+          // cout << std::setprecision(15)<<pageRank<<"\n";
             C_Info->at(ID).pageRank=pageRank;
           //  C_Info->at(pageRank_d_value_after_computation)=d_value;
 
