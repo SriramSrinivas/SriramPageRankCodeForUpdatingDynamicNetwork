@@ -134,17 +134,24 @@ void  printPageRankCompleteInformationInitial(SCC_Network *X,vector<PR_Comp> * p
 }
 
 
-void updatePageRankUpdateFlagForNeighbors (vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *nodetoBeupdated)
+void updatePageRankUpdateFlagForNeighbors (vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *nodetoBeupdated, int *totalNumberofNodesMarkedforUpdate)
 {
+   int count=*totalNumberofNodesMarkedforUpdate;
+
     for(int j=0;j< pageRankCompleteInformation->at(*nodetoBeupdated).outsideConnnection.size();j++) {
         int nodetoMark = pageRankCompleteInformation->at(*nodetoBeupdated).outsideConnnection.at(j).first;
 
         if (nodetoMark != -1) {
             if (!pageRankCompleteInformation->at(nodetoMark).updateFlag) {
+
                 pageRankCompleteInformation->at(nodetoMark).updateFlag = true;
+                count++;
+               // *totalNumberofNodesMarkedforUpdate=count;
+               // cout<<"updateafterrea"<<nodetoMark<<"\n";
             }
         }
     }
+    *totalNumberofNodesMarkedforUpdate=count;
 
 }
 
@@ -153,12 +160,12 @@ void  computePageRankofNodetobeUpdated(vector<PageRank_MetaInformation> *pageRan
     /*
      *
      * Don't compute the values, just update the existing values
+     * still need to be optimized
      */
 
-    if(pageRankCompleteInformation->at(*nodetoBeupdated).inConnectionSize!=pageRankCompleteInformation->at(*nodetoBeupdated).afterProcessigCEInConnectionSize) {
+
         computeValueOfNode(pageRankCompleteInformation, nodetoBeupdated);
-        // updateValueOfNode(pageRankCompleteInformation,nodetoBeupdated)
-    }
+
    // updateValueOfNode(pageRankCompleteInformation,nodetoBeupdated)
     pageRankCompleteInformation->at(*nodetoBeupdated).pageRank=((pageRankCompleteInformation->at(*nodetoBeupdated).dValue)/(pageRankCompleteInformation->size())
 
@@ -186,11 +193,12 @@ void  computePageRankofNodetobeUpdated(vector<PageRank_MetaInformation> *pageRan
      *
      */
 
-void updatePageRank(SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *p, int *maxIterations)
+void updatePageRank(SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *p, int *maxIterations, int *totalNumberofNodesMarkedforUpdate)
 {
   cout<<*maxIterations<<"\n";
   vector<double> previousIterationValue;
   int counter=0;
+// int count=*totalNumberofNodesMarkedforUpdate;
   bool change=true;
     while(counter<*maxIterations && change==true) {
 change=false;
@@ -209,15 +217,22 @@ change=false;
                 //pageRankCompleteInformation->at(i).vertexLock=true;
                 int nodetoBeupdated=pageRankCompleteInformation->at(i).id;
                 computePageRankofNodetobeUpdated(pageRankCompleteInformation,&nodetoBeupdated);
-                updatePageRankUpdateFlagForNeighbors(pageRankCompleteInformation,&nodetoBeupdated);
+                // check for  value true  again and see if there is any significant change
+                if(pageRankCompleteInformation->at(i).updateFlag==true) {
+                    updatePageRankUpdateFlagForNeighbors(pageRankCompleteInformation, &nodetoBeupdated,
+                                                         totalNumberofNodesMarkedforUpdate);
+                }
             }
 
 
         }
-       // cout<<"counterStatus"<<counter<<"\n";
+
+
+
         counter++;
 
     }
+    cout<<"counterStatus"<<counter<<"\n";
 }
 
 void  printFinalPageRankValuesForAllNodes(vector<PageRank_MetaInformation> *pageRankCompleteInformation)
@@ -230,12 +245,13 @@ void  printFinalPageRankValuesForAllNodes(vector<PageRank_MetaInformation> *page
 }
 
 
-void printFinalPageRankValuesForAllNodesinAFile(vector<PageRank_MetaInformation> *pageRankCompleteInformation, std::string *fileName, float *updateTime )
+void printFinalPageRankValuesForAllNodesinAFile(vector<PageRank_MetaInformation> *pageRankCompleteInformation, std::string *fileName, float *updateTime, int * totalNumberofNodesMarkedforUpdate )
 {
     ofstream myfile;
     myfile.open (*fileName);
     myfile<<"Total time to Update the Network:"<<" " <<*updateTime<<"\n";
     myfile << "Here is the Output!.\n";
+    myfile<<"Total number of nodes marked for update:"<<*totalNumberofNodesMarkedforUpdate<<"\n";
 
     for(int i=0;i<pageRankCompleteInformation->size();i++)
     {

@@ -142,14 +142,14 @@ void readin_SCC(char *file, SCC_Network *X, vector<SCC_Comp> *C_Info)
 
 
 //Information about set of changed edges
-void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRank_MetaInformation> *pageRankCompleteInformation)
+void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRank_MetaInformation> *pageRankCompleteInformation, int * totalNumberofNodesMarkedforUpdate)
 {
     //File reading parameters
     FILE *graph_file;
     char line[128];
     int_int edge;
     int type;
-
+    int count=0;
     
     graph_file=fopen(myfile, "r");
     while(fgets(line,128,graph_file) != NULL)
@@ -209,7 +209,12 @@ void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRa
          //   std::remove(pageRankCompleteInformation->at(n1).outsideConnnection.begin(), pageRankCompleteInformation->at(n1).outsideConnnection.end(), n2);
          //   std::remove(pageRankCompleteInformation->at(n2).inConnnection.begin(), pageRankCompleteInformation->at(n2).inConnnection.end(), n1);
            pageRankCompleteInformation->at(n2).updateFlag=true;
-            pageRankCompleteInformation->at(n1).updateFlag=true;
+            //cout<<"update"<<n2<<"\n";
+            count++;
+            *totalNumberofNodesMarkedforUpdate=count;
+
+//            cout<<*totalNumberofNodesMarkedforUpdate<<":"<<"\n";
+            //pageRankCompleteInformation->at(n1).updateFlag=true; // not  required because only nodes internal neighbor  willbe affected not the external
             for(int i=0;i<X->at(n2).In_Neigh.size();i++)
             {
         //        pageRank_Info->at(X->at(n2).In_Neigh[i].first).updateFlag= true;
@@ -243,11 +248,16 @@ void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRa
 //            cout <<n1<<"check"<<n2<<"\t";
 //            cout<< pageRank_Info->at(n1).updateFlag<<"\n";
 //            cout<< pageRank_Info->at(n2).updateFlag<<"\n";
-            pageRankCompleteInformation->at(n1).updateFlag=true;
+           // pageRankCompleteInformation->at(n1).updateFlag=true; // for n1 it is external, for page rank only focus on nodes internal connection
             pageRankCompleteInformation->at(n2).updateFlag=true;
+            count++;
+            *totalNumberofNodesMarkedforUpdate=count;
+
+//            cout<<*totalNumberofNodesMarkedforUpdate<<"::"<<"\n";
             int_double dummy_val;
             dummy_val.first=n2;
             dummy_val.second=pageRankCompleteInformation->at(n2).pageRank;
+            //cout<<"update"<<n2<<"\n";
             pageRankCompleteInformation->at(n1).outsideConnnection.push_back(dummy_val);
             pageRankCompleteInformation->at(n1).afterProcessingCEOutsideConnectionSize++;
 

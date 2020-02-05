@@ -70,20 +70,21 @@ SCC_Network initialNetwork;
    // Identify the nodes which needs to be updated
    // process CHanged Edges
     int b=1;
-    readin_changes(argv[3], b,&initialNetwork,&pageRank_Info,&pageRankCompleteInformation);
+    int totalNumberofNodesMarkedforUpdate=0;
+    readin_changes(argv[3], b,&initialNetwork,&pageRank_Info,&pageRankCompleteInformation, &totalNumberofNodesMarkedforUpdate);
     batch_update(&initialNetwork,p);
    // printPageRankCompleteInformationInitial(&initialNetwork,&pageRank_Info,&pageRankCompleteInformation);
 
     int maxIterations=atoi(argv[6]);
     updateStartTime=clock();
-    updatePageRank(&initialNetwork,&pageRank_Info,&pageRankCompleteInformation,&p,&maxIterations);
+    updatePageRank(&initialNetwork,&pageRank_Info,&pageRankCompleteInformation,&p,&maxIterations, &totalNumberofNodesMarkedforUpdate);
     updateEndTime=clock()-updateStartTime;
     float updateTime=float(((float)updateEndTime)/CLOCKS_PER_SEC);
     cout <<fixed<< "Total Time for updating Network "<< updateTime <<"\n";
-    printFinalPageRankValuesForAllNodes(&pageRankCompleteInformation);
+    //printFinalPageRankValuesForAllNodes(&pageRankCompleteInformation);
     std::string outputFileName= argv[7];
     cout <<outputFileName<<"\n";
-    printFinalPageRankValuesForAllNodesinAFile(&pageRankCompleteInformation,&outputFileName, &updateTime);
+    printFinalPageRankValuesForAllNodesinAFile(&pageRankCompleteInformation,&outputFileName, &updateTime, &totalNumberofNodesMarkedforUpdate);
 
 
    // Mark the nodes and its neighbor for update
