@@ -100,10 +100,10 @@ void compute_d_ValueforGivenPageRank(vector<PageRank_MetaInformation> *pageRankC
     }
 
 
-void updateValueOfNode(vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *nodetoBeupdated)
-{
-
-}
+//void updateValueOfNode(vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *nodetoBeupdated)
+//{
+//
+//}
 
 void  printPageRankCompleteInformationInitial(SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRank_MetaInformation> *pageRankCompleteInformation)
 {
@@ -143,6 +143,17 @@ void updatePageRankUpdateFlagForNeighbors (vector<PageRank_MetaInformation> *pag
 
         if (nodetoMark != -1) {
             if (!pageRankCompleteInformation->at(nodetoMark).updateFlag) {
+              //check for neighbors PR significance
+//              for(int m=0;m<pageRankCompleteInformation->at(nodetoMark).inConnnection.size();m++)
+//              {
+//
+//                  if (pageRankCompleteInformation->at(nodetoMark).inConnnection.at(m).first!=-1)
+//                  {
+//                      if(pageRankCompleteInformation->at(nodetoMark).inConnnection.at(m).second)
+//                  }
+//
+//
+//              }
 
                 pageRankCompleteInformation->at(nodetoMark).updateFlag = true;
                 count++;
@@ -170,12 +181,15 @@ void  computePageRankofNodetobeUpdated(vector<PageRank_MetaInformation> *pageRan
     pageRankCompleteInformation->at(*nodetoBeupdated).pageRank=((pageRankCompleteInformation->at(*nodetoBeupdated).dValue)/(pageRankCompleteInformation->size())
 
             +(1-pageRankCompleteInformation->at(*nodetoBeupdated).dValue)*(pageRankCompleteInformation->at(*nodetoBeupdated).intermediateValue));
-    if(pageRankCompleteInformation->at(*nodetoBeupdated).previousIterationPageRankValue==pageRankCompleteInformation->at(*nodetoBeupdated).pageRank*0.00001)
+    double valueforCheckingSignificance= abs(pageRankCompleteInformation->at(*nodetoBeupdated).previousIterationPageRankValue-(pageRankCompleteInformation->at(*nodetoBeupdated).pageRank));
+    if(valueforCheckingSignificance>0.00000001)
     {
         pageRankCompleteInformation->at(*nodetoBeupdated).updateFlag=false;
     }else
         {
             pageRankCompleteInformation->at(*nodetoBeupdated).previousIterationPageRankValue= pageRankCompleteInformation->at(*nodetoBeupdated).pageRank;
+
+//            for (int m=0;m<pageRankCompleteInformation->at(*nodetoBeupdated).inConnnection.size();m++)
     }
 
 }
@@ -203,7 +217,7 @@ void updatePageRank(SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRa
     while(counter<*maxIterations && change==true) {
 change=false;
  #pragma omp parallel for schedule(dynamic) num_threads(*p)
-        for (int i = 0; i < pageRankCompleteInformation->size(); i++) {
+        for (int iterator = 0; iterator < pageRankCompleteInformation->size(); iterator++) {
 
             /*
              * Add && pageRankCompleteInformation->at(i).vertexLock==false
@@ -211,14 +225,14 @@ change=false;
              */
 
 
-            if (pageRankCompleteInformation->at(i).updateFlag== true)
+            if (pageRankCompleteInformation->at(iterator).updateFlag== true)
             { change=true;
 
                 //pageRankCompleteInformation->at(i).vertexLock=true;
-                int nodetoBeupdated=pageRankCompleteInformation->at(i).id;
+                int nodetoBeupdated=pageRankCompleteInformation->at(iterator).id;
                 computePageRankofNodetobeUpdated(pageRankCompleteInformation,&nodetoBeupdated);
                 // check for  value true  again and see if there is any significant change
-                if(pageRankCompleteInformation->at(i).updateFlag==true) {
+                if(pageRankCompleteInformation->at(iterator).updateFlag==true) {
                     updatePageRankUpdateFlagForNeighbors(pageRankCompleteInformation, &nodetoBeupdated,
                                                          totalNumberofNodesMarkedforUpdate);
                 }
