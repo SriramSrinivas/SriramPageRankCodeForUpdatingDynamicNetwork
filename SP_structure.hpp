@@ -172,6 +172,10 @@ struct PageRank_MetaInformation{
     int outsideConnectionSize;
     int afterProcessigCEInConnectionSize;
     int afterProcessingCEOutsideConnectionSize;
+    int level;
+    bool visited;
+    bool potential_visit;
+    int visit_count=0;
     PageRank_MetaInformation()
     {
         inConnnection.clear();
@@ -181,6 +185,10 @@ struct PageRank_MetaInformation{
         previousIterationPageRankValue=false;
         inConnectionSize=0;
         outsideConnectionSize=0;
+        level=0;
+        visited= false;
+        potential_visit=false;
+        visit_count=0;
     }
 
 

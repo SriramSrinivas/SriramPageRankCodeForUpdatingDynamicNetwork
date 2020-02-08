@@ -142,7 +142,7 @@ void readin_SCC(char *file, SCC_Network *X, vector<SCC_Comp> *C_Info)
 
 
 //Information about set of changed edges
-void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRank_MetaInformation> *pageRankCompleteInformation, int * totalNumberofNodesMarkedforUpdate)
+void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRank_MetaInformation> *pageRankCompleteInformation, int * totalNumberofNodesMarkedforUpdate, vector<int>*nodesMarkedforUpdate)
 {
     //File reading parameters
     FILE *graph_file;
@@ -150,6 +150,7 @@ void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRa
     int_int edge;
     int type;
     int count=0;
+
     
     graph_file=fopen(myfile, "r");
     while(fgets(line,128,graph_file) != NULL)
@@ -209,6 +210,7 @@ void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRa
          //   std::remove(pageRankCompleteInformation->at(n1).outsideConnnection.begin(), pageRankCompleteInformation->at(n1).outsideConnnection.end(), n2);
          //   std::remove(pageRankCompleteInformation->at(n2).inConnnection.begin(), pageRankCompleteInformation->at(n2).inConnnection.end(), n1);
            pageRankCompleteInformation->at(n2).updateFlag=true;
+            nodesMarkedforUpdate->push_back(n2);
             //cout<<"update"<<n2<<"\n";
             count++;
             *totalNumberofNodesMarkedforUpdate=count;
@@ -251,6 +253,7 @@ void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRa
            // pageRankCompleteInformation->at(n1).updateFlag=true; // for n1 it is external, for page rank only focus on nodes internal connection
             pageRankCompleteInformation->at(n2).updateFlag=true;
             count++;
+            nodesMarkedforUpdate->push_back(n2);
             *totalNumberofNodesMarkedforUpdate=count;
 
 //            cout<<*totalNumberofNodesMarkedforUpdate<<"::"<<"\n";

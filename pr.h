@@ -14,16 +14,15 @@ typedef std::numeric_limits< double > dbl;
 #include <string>
 #include <iostream>
 #include <iomanip>
+#include <queue>
 
 typedef  vector<PageRank_MetaInformation> PageRank_Network;
 void updatePageRankMetaInformation(SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRank_MetaInformation> *pageRankCompleteInformation)
 {
     //cout<<"I am here for updating Page Rank meta Information"<<"\n";
 
-    cout<<X->size()<<"\n";
-    pageRankCompleteInformation->resize(X->size());
+
     for (int i=0;i<X->size();i++) {
-        //cout << i << "\t";
         pageRankCompleteInformation->at(i).pageRank=pageRank_Info->at(i).pageRank;
         pageRankCompleteInformation->at(i).id=i;
         for (int j = 0; j < X->at(i).In_Neigh.size(); j++) {
@@ -127,6 +126,11 @@ void  printPageRankCompleteInformationInitial(SCC_Network *X,vector<PR_Comp> * p
 
         cout <<pageRankCompleteInformation->at(i).outsideConnectionSize<<"\t";
         cout <<pageRankCompleteInformation->at(i).inConnectionSize<<"\t";
+
+        cout <<"Level: \t";
+        cout <<pageRankCompleteInformation->at(i).level<<"\t";
+//        cout <<pageRankCompleteInformation->at(i).inConnectionSize<<"\t";
+
         cout <<"\n";
     }
 
@@ -134,7 +138,7 @@ void  printPageRankCompleteInformationInitial(SCC_Network *X,vector<PR_Comp> * p
 }
 
 
-void updatePageRankUpdateFlagForNeighbors (vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *nodetoBeupdated, int *totalNumberofNodesMarkedforUpdate)
+void updatePageRankUpdateFlagForNeighbors (vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *nodetoBeupdated, int *totalNumberofNodesMarkedforUpdate,vector<int> *nodesMarkedforUpdate)
 {
    int count=*totalNumberofNodesMarkedforUpdate;
 
@@ -156,6 +160,7 @@ void updatePageRankUpdateFlagForNeighbors (vector<PageRank_MetaInformation> *pag
 //              }
 
                 pageRankCompleteInformation->at(nodetoMark).updateFlag = true;
+                nodesMarkedforUpdate->push_back(nodetoMark);
                 count++;
                // *totalNumberofNodesMarkedforUpdate=count;
                // cout<<"updateafterrea"<<nodetoMark<<"\n";
@@ -182,6 +187,7 @@ void  computePageRankofNodetobeUpdated(vector<PageRank_MetaInformation> *pageRan
 
             +(1-pageRankCompleteInformation->at(*nodetoBeupdated).dValue)*(pageRankCompleteInformation->at(*nodetoBeupdated).intermediateValue));
     double valueforCheckingSignificance= abs(pageRankCompleteInformation->at(*nodetoBeupdated).previousIterationPageRankValue-(pageRankCompleteInformation->at(*nodetoBeupdated).pageRank));
+    // check for 10^-3 aand 10^-7
     if(valueforCheckingSignificance>0.00000001)
     {
         pageRankCompleteInformation->at(*nodetoBeupdated).updateFlag=false;
@@ -207,7 +213,7 @@ void  computePageRankofNodetobeUpdated(vector<PageRank_MetaInformation> *pageRan
      *
      */
 
-void updatePageRank(SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *p, int *maxIterations, int *totalNumberofNodesMarkedforUpdate)
+void updatePageRank(SCC_Network *X,vector<PR_Comp> * pageRank_Info,vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *p, int *maxIterations, int *totalNumberofNodesMarkedforUpdate, vector<int> *nodesMarkedforUpdate)
 {
   cout<<*maxIterations<<"\n";
   vector<double> previousIterationValue;
@@ -224,7 +230,7 @@ change=false;
              * need to discuss with SB, as this can again lead to atomic operation
              */
 
-
+              // add condition for level
             if (pageRankCompleteInformation->at(iterator).updateFlag== true)
             { change=true;
 
@@ -234,14 +240,12 @@ change=false;
                 // check for  value true  again and see if there is any significant change
                 if(pageRankCompleteInformation->at(iterator).updateFlag==true) {
                     updatePageRankUpdateFlagForNeighbors(pageRankCompleteInformation, &nodetoBeupdated,
-                                                         totalNumberofNodesMarkedforUpdate);
+                                                         totalNumberofNodesMarkedforUpdate, nodesMarkedforUpdate);
                 }
             }
 
 
         }
-
-
 
         counter++;
 
@@ -274,6 +278,66 @@ void printFinalPageRankValuesForAllNodesinAFile(vector<PageRank_MetaInformation>
     }
 
     myfile.close();
+}
+
+
+
+void  custom_build_traversal(queue<int> *myqueue,vector<PageRank_MetaInformation> *pageRankCompleteInformation)
+{
+    while(!myqueue->empty())
+    {
+
+        cout<<"myqueu" <<myqueue->front()<<"\n";
+        for(int j=0;j<pageRankCompleteInformation->at(myqueue->front()).outsideConnnection.size();j++)
+        {
+//            cout <<"j--"<<pageRankCompleteInformation->at(myqueue->front()).afterProcessingCEOutsideConnectionSize<<"\n";
+
+            int value=pageRankCompleteInformation->at(myqueue->front()).outsideConnnection.at(j).first;
+//            cout <<"vv="<<value<<"\n";
+            if(value!=-1) {
+                if (pageRankCompleteInformation->at(value).visited == false) {
+                    pageRankCompleteInformation->at(value).visited = true;
+                    pageRankCompleteInformation->at(value).level++;
+                    myqueue->push(value);
+
+
+                } else {
+                    pageRankCompleteInformation->at(value).potential_visit = true;
+                    pageRankCompleteInformation->at(value).visit_count++;
+                }
+            }
+
+        }
+        myqueue->pop();
+
+    }
+
+}
+void updateLevelforEachNode(vector<PageRank_MetaInformation> *pageRankCompleteInformation, int *p, vector<int> *nodesMarkedforUpdate)
+{
+   cout <<"here";
+    bool change=true;
+//    cout <<nodesMarkedforUpdate;
+//#pragma omp parallel for schedule(dynamic) num_threads(*p)
+   for(int i=0;i<nodesMarkedforUpdate->size();i++)
+   {  queue<int> myqueue;
+       int sourceNode=nodesMarkedforUpdate->at(i);
+        myqueue.push(sourceNode);
+        pageRankCompleteInformation->at(sourceNode).visited=true;
+        custom_build_traversal(&myqueue,pageRankCompleteInformation);
+
+   }
+#pragma omp parallel for schedule(dynamic) num_threads(*p)
+   for(int i=0;i<pageRankCompleteInformation->size();i++)
+   {
+       if(pageRankCompleteInformation->at(i).potential_visit==true)
+       {
+           pageRankCompleteInformation->at(i).level+=pageRankCompleteInformation->at(i).visit_count;
+       }
+   }
+
+
+
 }
 
 #endif //PR_PR_H
