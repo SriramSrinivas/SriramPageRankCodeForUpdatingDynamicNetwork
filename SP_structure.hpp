@@ -185,7 +185,7 @@ struct PageRank_MetaInformation{
         previousIterationPageRankValue=false;
         inConnectionSize=0;
         outsideConnectionSize=0;
-        level=0;
+        level=-1;
         visited= false;
         potential_visit=false;
         visit_count=0;

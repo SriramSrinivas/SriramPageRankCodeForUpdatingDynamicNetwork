@@ -66,7 +66,7 @@ SCC_Network initialNetwork;
    updatePageRankMetaInformation(&initialNetwork,&pageRank_Info,&pageRankCompleteInformation);
    compute_d_ValueforGivenPageRank(&pageRankCompleteInformation);
    // call printPageRankCompleteInformationInitial only for debug
-   printPageRankCompleteInformationInitial(&initialNetwork,&pageRank_Info,&pageRankCompleteInformation);
+   //printPageRankCompleteInformationInitial(&initialNetwork,&pageRank_Info,&pageRankCompleteInformation);
 
    // Identify the nodes which needs to be updated
    // process CHanged Edges
@@ -75,14 +75,14 @@ SCC_Network initialNetwork;
     vector<int>nodesMarkedforUpdate;
 //    nodesMarkedforUpdate.resize(initialNetwork.size());
     readin_changes(argv[3], b,&initialNetwork,&pageRank_Info,&pageRankCompleteInformation, &totalNumberofNodesMarkedforUpdate, &nodesMarkedforUpdate);
-    cout<<"nn==="<<nodesMarkedforUpdate.size()<<"\n";
+    //cout<<"nn==="<<nodesMarkedforUpdate.size()<<"\n";
    // batch_update(&initialNetwork,p);
     //printPageRankCompleteInformationInitial(&initialNetwork,&pageRank_Info,&pageRankCompleteInformation);
     int maxIterations=atoi(argv[6]);
     cout <<"max"<<maxIterations;
     updateStartTime=clock();
     updateLevelforEachNode(&pageRankCompleteInformation, &p, &nodesMarkedforUpdate);
-    printPageRankCompleteInformationInitial(&initialNetwork,&pageRank_Info,&pageRankCompleteInformation);
+    //printPageRankCompleteInformationInitial(&initialNetwork,&pageRank_Info,&pageRankCompleteInformation);
     updatePageRank(&initialNetwork,&pageRank_Info,&pageRankCompleteInformation,&p,&maxIterations, &totalNumberofNodesMarkedforUpdate, &nodesMarkedforUpdate);
     updateEndTime=clock()-updateStartTime;
     float updateTime=float(((float)updateEndTime)/CLOCKS_PER_SEC);

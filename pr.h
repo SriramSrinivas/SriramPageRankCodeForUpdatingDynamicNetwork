@@ -231,7 +231,7 @@ change=false;
              */
 
               // add condition for level
-            if (pageRankCompleteInformation->at(iterator).updateFlag== true)
+            if (pageRankCompleteInformation->at(iterator).updateFlag== true && pageRankCompleteInformation->at(iterator).level==counter)
             { change=true;
 
                 //pageRankCompleteInformation->at(i).vertexLock=true;
@@ -287,7 +287,7 @@ void  custom_build_traversal(queue<int> *myqueue,vector<PageRank_MetaInformation
     while(!myqueue->empty())
     {
 
-        cout<<"myqueu" <<myqueue->front()<<"\n";
+//        cout<<"myqueu" <<myqueue->front()<<"\n";
         for(int j=0;j<pageRankCompleteInformation->at(myqueue->front()).outsideConnnection.size();j++)
         {
 //            cout <<"j--"<<pageRankCompleteInformation->at(myqueue->front()).afterProcessingCEOutsideConnectionSize<<"\n";
@@ -297,14 +297,19 @@ void  custom_build_traversal(queue<int> *myqueue,vector<PageRank_MetaInformation
             if(value!=-1) {
                 if (pageRankCompleteInformation->at(value).visited == false) {
                     pageRankCompleteInformation->at(value).visited = true;
-                    pageRankCompleteInformation->at(value).level++;
                     myqueue->push(value);
-
-
-                } else {
-                    pageRankCompleteInformation->at(value).potential_visit = true;
-                    pageRankCompleteInformation->at(value).visit_count++;
                 }
+                    int parentLevel=pageRankCompleteInformation->at(myqueue->front()).level;
+                    int currentNodeLevel=pageRankCompleteInformation->at(value).level;
+                    if(currentNodeLevel<parentLevel+1) {
+                        currentNodeLevel=parentLevel+1;
+                                                           #pragma omp atomic write
+                        pageRankCompleteInformation->at(value).level=currentNodeLevel;
+                    }
+
+
+
+
             }
 
         }
@@ -318,7 +323,7 @@ void updateLevelforEachNode(vector<PageRank_MetaInformation> *pageRankCompleteIn
    cout <<"here";
     bool change=true;
 //    cout <<nodesMarkedforUpdate;
-//#pragma omp parallel for schedule(dynamic) num_threads(*p)
+#pragma omp parallel for schedule(dynamic) num_threads(*p)
    for(int i=0;i<nodesMarkedforUpdate->size();i++)
    {  queue<int> myqueue;
        int sourceNode=nodesMarkedforUpdate->at(i);
@@ -327,14 +332,14 @@ void updateLevelforEachNode(vector<PageRank_MetaInformation> *pageRankCompleteIn
         custom_build_traversal(&myqueue,pageRankCompleteInformation);
 
    }
-#pragma omp parallel for schedule(dynamic) num_threads(*p)
-   for(int i=0;i<pageRankCompleteInformation->size();i++)
-   {
-       if(pageRankCompleteInformation->at(i).potential_visit==true)
-       {
-           pageRankCompleteInformation->at(i).level+=pageRankCompleteInformation->at(i).visit_count;
-       }
-   }
+//#pragma omp parallel for schedule(dynamic) num_threads(*p)
+//   for(int i=0;i<pageRankCompleteInformation->size();i++)
+//   {
+//       if(pageRankCompleteInformation->at(i).potential_visit==true)
+//       {
+//           pageRankCompleteInformation->at(i).level+=pageRankCompleteInformation->at(i).visit_count;
+//       }
+//   }
 
 
 

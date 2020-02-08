@@ -210,6 +210,7 @@ void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRa
          //   std::remove(pageRankCompleteInformation->at(n1).outsideConnnection.begin(), pageRankCompleteInformation->at(n1).outsideConnnection.end(), n2);
          //   std::remove(pageRankCompleteInformation->at(n2).inConnnection.begin(), pageRankCompleteInformation->at(n2).inConnnection.end(), n1);
            pageRankCompleteInformation->at(n2).updateFlag=true;
+            pageRankCompleteInformation->at(n2).level++;
             nodesMarkedforUpdate->push_back(n2);
             //cout<<"update"<<n2<<"\n";
             count++;
@@ -254,6 +255,7 @@ void readin_changes(char *myfile, int b, SCC_Network *X,vector<PR_Comp> * pageRa
             pageRankCompleteInformation->at(n2).updateFlag=true;
             count++;
             nodesMarkedforUpdate->push_back(n2);
+            pageRankCompleteInformation->at(n2).level++;
             *totalNumberofNodesMarkedforUpdate=count;
 
 //            cout<<*totalNumberofNodesMarkedforUpdate<<"::"<<"\n";
